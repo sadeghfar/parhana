@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>گزارش بازدید از فروشگاه‌های پرحنایی</title>
+<style>
+  @font-face {
+    font-family: 'Vazir';
+    src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Vazir';
+    src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-Bold.woff2') format('woff2');
+    font-weight: bold;
+    font-style: normal;
+  }
+
+  body {
+    font-family: 'Vazir', sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 10vh;
+    padding: 0;
+  }
+
+  .container {
+    width: 80%; /* عرض صفحه ۸۰ درصد طبق درخواست اولیه */
+    max-width: 210mm; /* حداکثر عرض برای نمایش بهتر در صفحات بزرگ */
+    border: 2px solid #000080 !important; /* کادر آبی دور فرم */
+    padding: 15mm;
+    border-radius: 0;
+    background-color: #fff;
+    box-shadow: none;
+    box-sizing: border-box;
+    margin-top: 0;
+  }
+
+  /* این h1 رو در حالت نمایش عادی نگه می‌داریم و در پرینت مخفی می‌کنیم */
+  h1 {
+    font-family: 'Vazir', sans-serif;
+    font-size: 12pt; /* عنوان فرم: Vazir 12pt */
+    font-weight: bold;
+    color: white; /* نگاتیو */
+    background-color: #000080; /* رنگ سورمه‌ای برای پس‌زمینه عنوان */
+    padding: 8px;
+    text-align: center;
+    border-radius: 5px;
+    margin-top: 0;
+    margin-bottom: 15px; /* این مارجین رو در پرینت حذف می‌کنیم */
+  }
+
+  h2 {
+    font-family: 'Vazir', sans-serif;
+    font-size: 10pt; /* اندازه هدینگ‌های بخش‌ها */
+    color: #333;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 3px;
+  }
+
+  p, label, input, textarea, select {
+    font-family: 'Vazir', sans-serif;
+    font-size: 10pt; /* متن اصلی: Vazir 10pt */
+    color: #555;
+  }
+
+  .form-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: nowrap;
+  }
+
+  .form-info-item {
+    display: flex;
+    align-items: center;
+    flex-basis: 24%;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .form-info-item label {
+    font-weight: bold;
+    margin-left: 5px;
+    font-size: 8pt;
+  }
+
+  .form-info-item input[type="text"] {
+    flex-grow: 1;
+    padding: 2px 4px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: 'Vazir', sans-serif;
+    font-size: 7pt;
+    min-width: 40px;
+  }
+
+  /* ساختار جدید برای قرار دادن چک‌باکس‌ها و توضیحات کنار هم */
+  .section-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch; /* مهم: آیتم‌ها کل ارتفاع کانتینر فلکس را بگیرند */
+    gap: 10px; /* کاهش فاصله بین دو ستون */
+    flex-wrap: wrap; /* برای ریسپانسیو بودن در صورت کوچک شدن صفحه */
+  }
+
+  .checkboxes-column {
+    flex-basis: 60%; /* کاهش عرض چک‌باکس‌ها */
+    flex-grow: 1;
+    min-width: 280px; /* حداقل عرض برای این ستون */
+    display: flex; /* برای هم‌ترازی آیتم‌های داخلی */
+    flex-direction: column;
+    justify-content: space-between; /* توزیع فضا بین چک‌باکس‌ها */
+  }
+
+  .checkbox-group {
+    margin-bottom: 4px;
+  }
+
+  .checkbox-group label {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 2px;
+    font-size: 8.5pt;
+    line-height: 1.3;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    margin-left: 8px;
+    transform: scale(0.8);
+    flex-shrink: 0;
+  }
+
+  .comment-column {
+    flex-basis: calc(40% - 10px); /* افزایش عرض باکس توضیحات با در نظر گرفتن gap */
+    min-width: 180px; /* افزایش حداقل عرض برای تکست‌آریا */
+    border: none;
+    padding: 0;
+    background-color: transparent;
+    display: flex; /* برای اینکه textarea تمام ارتفاع موجود را پر کند */
+    flex-direction: column;
+  }
+
+  .comment-column textarea {
+    width: 100%;
+    flex-grow: 1; /* این باعث می‌شود textarea کل فضای عمودی موجود را بگیرد */
+    padding: 4px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    box-sizing: border-box;
+    resize: vertical; /* هنوز قابلیت تغییر اندازه عمودی داشته باشد */
+    font-size: 7.5pt;
+    font-family: 'Vazir', sans-serif;
+    background-color: #f9f9f9;
+  }
+
+  .comment-column textarea::placeholder {
+    font-weight: bold;
+    color: #555;
+  }
+
+  /* استایل برای تقسیم بخش انتهای فرم به دو قسمت */
+  .footer-columns {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* فاصله بین دو ستون */
+    margin-top: 20px;
+    flex-wrap: wrap; /* برای ریسپانسیو بودن */
+    align-items: stretch; /* برای هم ارتفاع شدن ستون‌ها */
+  }
+
+  .action-plan-column {
+    flex-basis: calc(50% - 10px); /* عرض هر ستون */
+    display: flex; /* برای تنظیم ارتفاع textarea */
+    flex-direction: column;
+  }
+
+  .action-plan-column textarea {
+    width: 100%;
+    flex-grow: 1; /* باعث می‌شود textarea تمام ارتفاع موجود را بگیرد */
+    height: 180px; /* ارتفاع پیش‌فرض برای این باکس */
+    padding: 4px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    box-sizing: border-box;
+    resize: vertical;
+    font-size: 7.5pt;
+    font-family: 'Vazir', sans-serif;
+    background-color: #f9f9f9;
+  }
+
+  .action-plan-column textarea::placeholder {
+    font-weight: bold;
+    color: #555;
+    font-size: 8.5pt;
+  }
+
+  .acceptance-column {
+    flex-basis: calc(50% - 10px); /* عرض هر ستون */
+    display: flex; /* برای تنظیم ارتفاع textarea */
+    flex-direction: column;
+  }
+
+  .acceptance-column textarea {
+    width: 100%;
+    flex-grow: 1; /* باعث می‌شود textarea تمام ارتفاع موجود را بگیرد */
+    height: 180px; /* ارتفاع پیش‌فرض برای این باکس */
+    padding: 4px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    box-sizing: border-box;
+    resize: vertical;
+    font-size: 7.5pt;
+    font-family: 'Vazir', sans-serif;
+    background-color: #f9f9f9;
+  }
+
+  .acceptance-column textarea::placeholder {
+    font-weight: bold;
+    color: #555;
+    font-size: 8.5pt;
+  }
+
+
+  .signature-area {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px; /* فاصله از بخش بالایی */
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+    flex-wrap: wrap;
+  }
+
+  .signature-box {
+    text-align: center;
+    width: 30%; /* برای سه امضا، هر کدام یک سوم عرض را بگیرند */
+    margin-bottom: 10px;
+  }
+
+  .signature-box p {
+    margin-top: 25px;
+    padding-top: 5px;
+    font-size: 8.5pt;
+    font-weight: bold;
+  }
+
+  /* --- تنظیمات مربوط به پرینت --- */
+  @page {
+    size: A4 portrait;
+    /* افزایش مارجین بالا به 20mm برای فاصله بیشتر از لبه */
+    margin: 20mm 5mm 5mm 5mm; /* top right bottom left */
+
+    @top-center {
+      content: "گزارش بازدید از فروشگاه‌های پرحنایی"; /* عنوان سربرگ */
+      font-family: 'Vazir', sans-serif;
+      font-size: 12pt; /* اندازه فونت سربرگ */
+      font-weight: bold;
+      color: #000080; /* رنگ سورمه‌ای برای سربرگ چاپی */
+      border-bottom: 1px solid #ccc; /* یک خط زیر سربرگ */
+      padding-bottom: 2mm; /* فاصله متن از خط زیرین */
+    }
+
+    @bottom-center {
+      content: "صفحه " counter(page) " از " counter(pages);
+      font-family: 'Vazir', sans-serif;
+      font-size: 7pt;
+      color: #666;
+    }
+  }
+
+
+  @media print {
+    body {
+      background-color: #fff;
+      margin: 0 !important; /* اطمینان از حذف کامل مارجین body */
+      padding: 0 !important; /* اطمینان از حذف کامل پدینگ body */
+      display: block;
+      border: none !important; /* این خط اضافه شد تا کادر حذف شود */
+    }
+    .container {
+      width: 100%; /* کانتینر در پرینت کل عرض موجود را بگیرد (منهای مارجین @page) */
+      border: none !important; /* این خط هم باید باشه تا هرگونه border احتمالی رو حذف کنه */
+      box-shadow: none;
+      padding: 0mm !important; /* حذف پدینگ داخلی در پرینت برای چسباندن محتوا */
+      margin: 0 auto !important; /* در پرینت در مرکز قرار بگیرد و مارجین اطراف حذف شود */
+      box-sizing: border-box; /* پدینگ داخل عرض حساب شود */
+      /* افزایش مارجین بالا برای فاصله از هدر (سربرگ @top-center) */
+      margin-top: 10mm !important; /* فاصله محتوای فرم از سربرگ پرینت */
+    }
+    h1 {
+      display: none; /* مخفی کردن عنوان اصلی فرم در حالت پرینت */
+    }
+
+    /* تنظیم مجدد مارجین‌های داخلی در پرینت */
+    .form-info-row {
+        margin-top: 0 !important; /* اطمینان از حذف مارجین بالای اولین ردیف اطلاعاتی */
+        margin-bottom: 5mm !important; /* کمی فاصله بعد از اطلاعات بالا */
+    }
+    .section-wrapper {
+        margin-bottom: 7mm !important; /* فاصله بین بخش ها در پرینت */
+        padding-top: 0mm !important; /* حذف پدینگ احتمالی بالای بخش ها */
+    }
+
+
+    .form-info-row, .form-info-item, .checkbox-group label {
+      white-space: normal;
+    }
+    .form-info-item input[type="text"],
+    .comment-column textarea,
+    .action-plan-column textarea,
+    .acceptance-column textarea {
+        background-color: #f8f8f8; /* رنگ خاکستری کمرنگ‌تر برای پرینت */
+        -webkit-print-color-adjust: exact;
+        border: 1px solid #eee; /* حاشیه برای باکس‌های ورودی */
+    }
+    .comment-column textarea::placeholder,
+    .action-plan-column textarea::placeholder,
+    .acceptance-column textarea::placeholder {
+        font-weight: bold !important;
+        color: #555 !important;
+        font-size: 8.5pt !important;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .signature-box p {
+      border-top: none !important; /* حذف خط بالای امضا در پرینت */
+      -webkit-print-color-adjust: exact;
+    }
+    .signature-area {
+        justify-content: space-around;
+        margin-top: 15mm; /* فاصله امضاها از باکس اقدامات لازم */
+    }
+    .signature-box {
+        width: 32%; /* برای سه امضا، هر کدام یک سوم عرض را بگیرند */
+        margin-bottom: 10px;
+    }
+
+    /* جلوگیری از شکستن بخش ها در پرینت */
+    .section-wrapper {
+        page-break-inside: avoid;
+        margin-bottom: 7mm;
+    }
+
+    .section-body {
+        display: flex;
+        align-items: stretch;
+        justify-content: space-between;
+        width: 100%;
+        flex-wrap: nowrap;
+        gap: 8px;
+    }
+
+    .checkboxes-column {
+        flex-basis: 60%;
+        max-width: 60%;
+    }
+
+    .comment-column {
+        flex-basis: calc(40% - 8px);
+        max-width: calc(40% - 8px);
+        margin-top: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .comment-column textarea {
+        height: auto;
+        flex-grow: 1;
+    }
+
+    .footer-columns {
+        display: flex;
+        justify-content: space-between;
+        gap: 10mm; /* فاصله بین دو ستون در پرینت */
+        margin-top: 10mm;
+        align-items: stretch; /* برای هم ارتفاع شدن در پرینت */
+        page-break-before: auto;
+        page-break-after: auto;
+    }
+
+    .action-plan-column, .acceptance-column {
+        flex-basis: calc(50% - 5mm); /* عرض هر ستون در پرینت با در نظر گرفتن گپ */
+    }
+
+    .action-plan-column textarea, .acceptance-column textarea {
+        height: 120mm; /* ارتفاع مشخص برای هر دو باکس در پرینت */
+        background-color: #f8f8f8;
+        border: 1px solid #eee !important;
+        -webkit-print-color-adjust: exact;
+    }
+
+    h2 {
+      margin-bottom: 5px;
+    }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>گزارش بازدید از فروشگاه‌های پرحنایی</h1>
+
+  <div class="form-info-row">
+    <div class="form-info-item">
+      <label for="storeName">نام فروشگاه:</label>
+      <input type="text" id="storeName" name="storeName">
+    </div>
+    <div class="form-info-item">
+      <label for="managerName">نام مسئول فروشگاه:</label>
+      <input type="text" id="managerName" name="managerName">
+    </div>
+    <div class="form-info-item">
+      <label for="visitDate">روز و تاریخ بازدید:</label>
+      <input type="text" id="visitDate" name="visitDate">
+    </div>
+    <div class="form-info-item">
+      <label for="visitorName">نام بازدید کننده:</label>
+      <input type="text" id="visitorName" name="visitorName">
+    </div>
+  </div>
+
+  <form>
+    <div class="section-wrapper">
+      <h2>۱. کارکنان</h2>
+      <div class="section-body">
+        <div class="checkboxes-column">
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="staffPersonalHygiene" value="personalHygiene">
+              رعایت بهداشت فردی (ناخن، موی سر، نداشتن زیورآلات، تمیزی لباس زیر یونیفرم)
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="staffCertificates" value="healthCertificate">
+              معتبر بودن گواهینامه بهداشتی و تاریخ اعتبار آن
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="staffDressCode" value="appropriateDress">
+              پوشش مناسب و تمیز شامل یونیفرم، ماسک، دستکش و کلاه/شال
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="staffBehavior" value="properBehavior">
+              رفتار مناسب، احترام‌آمیز و خوش‌برخورد با مشتریان
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="staffTraining" value="hygieneTraining">
+              آموزش کافی کارکنان در خصوص رعایت بهداشت و اصول کار
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="staffAttendance" value="regularAttendance">
+              حضور به موقع و منظم کارکنان
+            </label>
+          </div>
+        </div>
+        <div class="comment-column">
+          <textarea id="staffComments" name="staffComments" placeholder="توضیحات و نقاط قوت این بخش:"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-wrapper">
+      <h2>۲. بهداشت محیط</h2>
+      <div class="section-body">
+        <div class="checkboxes-column">
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="hygiene" value="cleanliness">
+              نظافت کلی فروشگاه (کف، دیوارها، سقف)
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="hygiene" value="productStorage">
+              رعایت اصول نگهداری محصولات (دمای مناسب یخچال/فریزر، عدم انباشت)
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="hygiene" value="pestControl">
+              کنترل حشرات و جوندگان
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="hygiene" value="wasteManagement">
+              مدیریت پسماند و سطل‌های زباله
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="hygiene" value="restroomHygiene">
+              وضعیت بهداشتی سرویس‌های بهداحتی (در صورت وجود و دسترسی)
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="hygiene" value="toolCleaning">
+              نحوه شستشو و ضدعفونی ابزار و سطوح
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="hygiene" value="productExpiration">
+              کنترل تاریخ انقضای محصولات
+            </label>
+          </div>
+        </div>
+        <div class="comment-column">
+          <textarea id="hygieneComments" name="hygieneComments" placeholder="توضیحات و نقاط قوت این بخش:"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-wrapper">
+      <h2>۳. هویت بصری</h2>
+      <div class="section-body">
+        <div class="checkboxes-column">
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="visualIdentity" value="signage">
+              تابلو و سردر فروشگاه (نصب صحیح، تمیز و خوانا)
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="visualIdentity" value="branding">
+              استفاده از لوگو و رنگ‌های سازمانی در فضای داخلی
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="visualIdentity" value="brandbookColors">
+              رعایت رنگ‌های هویت بصری برندبوک
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="visualIdentity" value="productDisplay">
+              چینش و نمایش محصولات (زیبا و منظم)
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="visualIdentity" value="lighting">
+              نورپردازی مناسب
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="visualIdentity" value="pricingClarity">
+              قیمت‌گذاری صحیح و واضح محصولات
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="visualIdentity" value="shelvingCleanliness">
+              وجود و تمیزی قفسه‌ها و ویترین‌ها
+            </label>
+          </div>
+        </div>
+        <div class="comment-column">
+          <textarea id="visualIdentityComments" name="visualIdentityComments" placeholder="توضیحات و نقاط قوت این بخش:"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-wrapper">
+      <h2>۴. تجهیزات</h2>
+      <div class="section-body">
+        <div class="checkboxes-column">
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="equipment" value="refrigerators">
+              عملکرد صحیح یخچال‌ها و فریزرها (دمای مناسب، عدم برفک)
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="scales">
+              کالیبره بودن و تمیزی ترازوها
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="cuttingTools">
+              بهداشت و تیز بودن ابزار برش (چاقو، ساطور)
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="equipment" value="airConditioning">
+              سیستم تهویه مناسب
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="equipment" value="packaging">
+              تجهیزات بسته‌بندی (سلفون‌کش، کیسه)
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="fireExtinguisher">
+              وجود کپسول آتش‌نشانی و تاریخ اعتبار آن
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="mistingSystem">
+              عملکرد سیستم‌های برودتی مانند مه پاش (در صورت وجود)
+            </label>
+          </div>
+        </div>
+        <div class="comment-column">
+          <textarea id="equipmentComments" name="equipmentComments" placeholder="توضیحات و نقاط قوت این بخش:"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-wrapper">
+      <h2>۵. نرم افزارها</h2>
+      <div class="section-body">
+        <div class="checkboxes-column">
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="software" value="posSystem">
+              عملکرد صحیح نرم‌افزار حسابداری/فروش (POS)
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="software" value="priceUpdates">
+              به‌روزرسانی قیمت‌ها در نرم‌افزار
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="inventoryManagement">
+              سیستم مدیریت موجودی (در صورت وجود)
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="customerLoyalty">
+              بکارگیری سامانه باشگاه مشتریان
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="softwareStaffTraining">
+              آموزش کافی کارکنان در استفاده از نرم‌افزارها
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" name="software" value="backupSystem">
+              پشتیبان‌گیری منظم از اطلاعات نرم‌افزاری
+            </label>
+          </div>
+        </div>
+        <div class="comment-column">
+          <textarea id="softwareComments" name="softwareComments" placeholder="توضیحات و نقاط قوت این بخش:"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-wrapper footer-columns">
+      <div class="action-plan-column">
+        <textarea id="actionPlan" name="actionPlan" placeholder="اقدامات لازم پیرو این بازدید:"></textarea>
+      </div>
+      <div class="acceptance-column">
+        <textarea id="remainingActions" name="remainingActions" placeholder="اقدامات باقیمانده از بازدیدهای گذشته"></textarea>
+      </div>
+    </div>
+
+    <div class="section-wrapper">
+      <div class="signature-area">
+        <div class="signature-box">
+          <p>امضای بازدید کننده</p>
+        </div>
+        <div class="signature-box">
+          <p>امضای مسئول فروشگاه</p>
+        </div>
+        <div class="signature-box">
+          <p>امضای مدیر فروش</p>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+</body>
+</html>
